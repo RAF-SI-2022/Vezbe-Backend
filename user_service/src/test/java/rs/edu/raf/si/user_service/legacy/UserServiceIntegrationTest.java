@@ -1,4 +1,4 @@
-package rs.edu.raf.si.user_service;
+package rs.edu.raf.si.user_service.legacy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import rs.edu.raf.si.user_service.form.LoginResponseForm;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
+import rs.edu.raf.si.user_service.model.User;
+import rs.edu.raf.si.user_service.service.UserService;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +34,11 @@ public class UserServiceIntegrationTest {
     // ObjectMapper nam dozvoljava da pretvorimo objekat u JSON string i obrnuto.
     @Autowired
     private ObjectMapper objectMapper;
+
+    // Mozemo inject-ovati i nase servise, komponente i ostale bean-ove,
+    // a zatim te klase, tj. objekte koristiti u testovima.
+    @Autowired
+    private UserService userService;
 
     // Isto kao i kod unit testova, svi testovi moraju biti anotirani sa "@Test".
     @Test
@@ -88,5 +96,24 @@ public class UserServiceIntegrationTest {
                         .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(userCreateForm)))
                 .andExpect(status().isOk());
+    }
+
+    // Primer testa gde direktno koristimo servis umesto HTTP zahteva.
+    // Isto kao i kod unit testova, svi testovi moraju biti anotirani sa "@Test".
+    @Test
+    void testCreateUserSpring() {
+        UserCreateForm userCreateForm = new UserCreateForm();
+        userCreateForm.setImePrezime("Pera Peric");
+        userCreateForm.setUsername("pera");
+        userCreateForm.setPassword("test");
+        userCreateForm.setIsAdmin(true);
+
+        try {
+            User user = userService.createUser(userCreateForm);
+            assertNotNull(user);
+            assertEquals(userCreateForm.getUsername(), user.getUsername());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 }

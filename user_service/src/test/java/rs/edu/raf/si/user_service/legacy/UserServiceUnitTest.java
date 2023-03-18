@@ -1,11 +1,8 @@
-package rs.edu.raf.si.user_service;
+package rs.edu.raf.si.user_service.legacy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import rs.edu.raf.si.user_service.form.UserCreateForm;

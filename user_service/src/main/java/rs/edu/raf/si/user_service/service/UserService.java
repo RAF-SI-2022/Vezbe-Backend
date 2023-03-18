@@ -9,6 +9,7 @@ public interface UserService {
 
     User getUser(String username) throws Exception;
     User createUser(UserCreateForm userCreateForm) throws Exception;
+    void deleteUser(User user);
     boolean isAdmin(String username) throws Exception;
 
 }

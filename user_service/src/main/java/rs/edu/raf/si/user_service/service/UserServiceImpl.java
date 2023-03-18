@@ -52,6 +52,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
+
+    @Override
     public boolean isAdmin(String username) throws Exception {
         Optional<User> userOpt = userRepository.findUserByUsername(username);
         if(userOpt.isEmpty()) {
