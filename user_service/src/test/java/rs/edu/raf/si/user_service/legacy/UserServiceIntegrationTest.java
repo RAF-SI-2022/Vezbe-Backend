@@ -78,7 +78,7 @@ public class UserServiceIntegrationTest {
         //   - rucno brisanjem objekta na kraju testa
         //   - koriscenjem random vrednosti
         UserCreateForm userCreateForm = new UserCreateForm();
-        userCreateForm.setUsername("pera");
+        userCreateForm.setUsername("pera1");
         userCreateForm.setImePrezime("Pera Peric");
         userCreateForm.setPassword("test");
         userCreateForm.setIsAdmin(false);
@@ -104,7 +104,7 @@ public class UserServiceIntegrationTest {
     void testCreateUserSpring() {
         UserCreateForm userCreateForm = new UserCreateForm();
         userCreateForm.setImePrezime("Pera Peric");
-        userCreateForm.setUsername("pera");
+        userCreateForm.setUsername("pera2");
         userCreateForm.setPassword("test");
         userCreateForm.setIsAdmin(true);
 

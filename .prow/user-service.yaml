@@ -1,0 +1,47 @@
+presubmits:
+  # PROMENITI PRI KOPIRANJU
+  # npr. pull-banka-1-user-service-sonarqube
+  - name: pull-vezbe-backend-user-service-sonarqube
+    labels:
+      preset-github-ro-token: "true"
+      preset-sonar-test-1: "true"
+    always_run: true
+    decorate: true
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/base-images/base:java-19-node-18-docker
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              # PROMENITI PRI KOPIRANJU
+              SONAR_PROJECT_KEY="Vezbe---user-service"
+              SERVICE_NAME="user_service"
+
+              start-docker.sh
+
+              head_ref=$(curl -L --silent -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/RAF-SI-2022/"$REPO_NAME"/pulls/"$PULL_NUMBER" | jq -r .head.ref)
+              export PULL_HEAD_REF="$head_ref"
+
+              # PROMENITI PRI KOPIRANJU
+              # docker compose up -d mysql-user
+              docker compose --profile user-service up -d
+
+              git branch $PULL_HEAD_REF
+              git reset --hard HEAD~1
+              git checkout $PULL_HEAD_REF
+
+              cd "$SERVICE_NAME"
+
+              mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                -Dsonar.host.url=https://sonar.k8s.elab.rs \
+                -Dsonar.pullrequest.key=$PULL_NUMBER \
+                -Dsonar.login=$SONARQUBE_TOKEN \
+                -Dsonar.pullrequest.branch=$PULL_HEAD_REF \
+                -Dsonar.pullrequest.base=$PULL_BASE_REF
+          securityContext:
+            privileged: true
+          imagePullPolicy: Always
