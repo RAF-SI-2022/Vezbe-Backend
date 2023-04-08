@@ -65,5 +65,8 @@ public class UserServiceImpl implements UserService {
 
         return userOpt.get().getIsAdmin();
     }
+    
+    public void testFunc() {
+    }
 
 }
