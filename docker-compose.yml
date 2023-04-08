@@ -13,6 +13,32 @@ services:
       - "3306:3306"
     volumes:
       - mysql-user:/var/lib/mysql
+    # Vezbe 7
+    # Profili su objasnjeni na pocetku treceg casa u sedmoj nedelji.
+    #
+    # Profili vam omogucavaju da selektivno pokrenete servise, tj. kontejner.
+    # Na primer, mozete definisati profil user-service i taj isti profil dodati
+    # na sve servise koje imaju veze sa user (korisnickim) servisom.
+    #
+    # Napomena: ukoliko za servis nije definisan nijedan profil, onda se taj servis
+    # uvek pokrece, ne vezano da li se koristi profil ili ne.
+    # Napomena 2: ukoliko je za servis definisan bar jedan profil, taj servis ce
+    # se pokrenuti samo ako se odgovarajuci profil koristi.
+    # Napomena 3: ako koristite profile, preporucujem da dodate profil "all" na sve
+    # servise kako bi mogli lako da pokrenete sve servise odjednom.
+    #
+    # Profile koristite na sledeci nacin:
+    # - docker compose --profile <naziv-profila> up -d
+    # Na primer:
+    # - docker compose --profile user-service up -d
+    # - docker compose --profile all up -d
+    #
+    # Alternativa profilima za selektivno pokretanje kontejnera je da eksplicitno
+    # navedete naziv servisa, npr:
+    # - docker compose up -d mysql-user
+    profiles:
+      - user-service
+      - all
 
   mysql-biblioteka:
     image: mysql
@@ -25,6 +51,55 @@ services:
       - "3307:3306"
     volumes:
       - mysql-biblioteka:/var/lib/mysql
+    profiles:
+      - library-service
+      - all
+
+  # Vezbe 7
+  # Primer mikroservisa u docker-compose.yml fajlu.
+  user-service:
+    # Image je lokacija:
+    # - odakle treba pull-ovati image pri pokretanju servisa
+    # - gde treba push-ovati image
+    # Kada dodate image, lokalno morate da pokrece compose sa --build flagom:
+    # - docker compose up --build -d
+    # Ako zelite da push-ujete image na Harbor, to mozete uciniti sa sledecim komandama:
+    # - docker compose build --pull <naziv-servisa>
+    # - docker compose push <naziv-servisa>
+    # npr:
+    # - docker compose build --pull user-service
+    # - docker compose push user-service
+    # Pre push-ovanja morate da budete logovani na Harbor. Za vise informacija o Harboru,
+    # pogledajte upustvo za koriscenje ili vezbe u sestoj nedelji.
+    image: harbor.k8s.elab.rs/vezbe/user-service:latest
+    build: ./user_service
+    # Ova opcija moze da bude potrebna ako radite na M1 ili M2 Mac-u.
+    platform: "linux/amd64"
+    environment:
+      spring.datasource.url: jdbc:mysql://mysql-user:3306/user
+    ports:
+      - "8080:8080"
+    links:
+      - mysql-user
+    depends_on:
+      - mysql-user
+    profiles:
+      - user-service
+      - all
+
+  library-service:
+    image: harbor.k8s.elab.rs/vezbe/library-service:latest
+    build: ./biblioteka
+    platform: "linux/amd64"
+    ports:
+      - "8081:8081"
+    links:
+      - mysql-biblioteka
+    depends_on:
+      - mysql-biblioteka
+    profiles:
+      - library-service
+      - all
 
 volumes:
   mysql-user:

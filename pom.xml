@@ -28,8 +28,6 @@
 		<java.version>19</java.version>
 		<maven.compiler.source>19</maven.compiler.source>
 		<maven.compiler.target>19</maven.compiler.target>
-<!--		<sonar.organization>raf-si-2021-1</sonar.organization>-->
-<!--		<sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
 	</properties>
 
 	<dependencies>

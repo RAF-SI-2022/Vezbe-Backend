@@ -23,12 +23,8 @@
 		<java.version>19</java.version>
 
 		<!-- build version -->
-		<revision>0.0.1-SNAPSHOT</revision>
-
-		<!-- SonarQube properties -->
-		<!--		<sonar.organization>raf-si-2021-1</sonar.organization>-->
-		<!--		<sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
-		<!--		<start-class>rs.edu.raf.banka.user_service.BankaApplication</start-class>-->
+		<revision>${project.version}</revision>
+		<finalName>${project.artifactId}-${revision}</finalName>
 
 		<!-- JaCoCo Properties -->
 		<jacoco.version>0.8.8</jacoco.version>
@@ -99,9 +95,16 @@
 			<version>3.8.0</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>0.8.8</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>${finalName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -113,6 +116,15 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<!-- Ovo je Java 17 zato sto je to Java verzija u Maven Docker image-u -->
+					<source>17</source>
+					<target>17</target>
 				</configuration>
 			</plugin>
 		</plugins>
