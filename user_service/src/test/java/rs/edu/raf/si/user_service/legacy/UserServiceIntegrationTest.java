@@ -104,7 +104,7 @@ public class UserServiceIntegrationTest {
     void testCreateUserSpring() {
         UserCreateForm userCreateForm = new UserCreateForm();
         userCreateForm.setImePrezime("Pera Peric");
-        userCreateForm.setUsername("pera");
+        userCreateForm.setUsername("petar");
         userCreateForm.setPassword("test");
         userCreateForm.setIsAdmin(true);
 
