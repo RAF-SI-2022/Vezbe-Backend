@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.LoginResponseForm;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
 import rs.edu.raf.si.user_service.model.User;
@@ -70,8 +71,8 @@ public class UserControllerTestsSteps extends UserControllerTestsConfig {
     @Then("proveravmo da li je {string} upisan u bazu podataka")
     public void proveravmo_da_li_je_upisan_u_bazu_podataka(String username) {
         try {
-            User user = userService.getUser(username);
-            assertNotNull(user);
+            UserDto userDto = userService.getUser(username);
+            assertNotNull(userDto);
         } catch (Exception e) {
             fail(e.getMessage());
         }
