@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
 import rs.edu.raf.si.user_service.model.User;
 import rs.edu.raf.si.user_service.repository.UserRepository;
@@ -116,11 +117,11 @@ public class UserServiceUnitTest {
 
             try {
                 // KORAK 3: Pozivamo metodu koju zelimo da testiramo.
-                User expectedUser = userService.createUser(userCreateForm);
+                UserDto expectedUserDto = userService.createUser(userCreateForm);
 
                 // KORAK 4: Proveramo da li smo dobili ocekivani rezultat.
-                assertNotNull(expectedUser);
-                assertEquals(expectedUser.getPassword(), user.getPassword());
+                assertNotNull(expectedUserDto);
+                assertEquals(expectedUserDto.getUsername(), user.getUsername());
             } catch (Exception e) {
                 // Ako dodje do exception-a, failujemo test.
                 //

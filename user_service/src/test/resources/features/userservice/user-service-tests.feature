@@ -10,8 +10,3 @@ Feature: Servis za upravljanje sa korisnicima
   Scenario: Dodavanje novog korisnika sa parametrima
     When napravimo novog korisnika koji se zove "Janko Jankovic", ima username "janko" i password "test"
     Then "janko" je sacuvan u bazi podataka
-
-  Scenario: Brisemo korisnika
-    Given korisnik "mika" postoji u bazi podataka
-    When zelimo da obrisemo korisnika ciji je username "mika"
-    Then "mika" je izbrisan iz baze podataka

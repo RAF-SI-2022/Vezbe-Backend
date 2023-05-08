@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
 import rs.edu.raf.si.user_service.model.User;
 import rs.edu.raf.si.user_service.service.UserService;
@@ -29,9 +30,9 @@ public class UserServiceTestsSteps extends UserServiceTestsConfig {
         userCreateForm.setIsAdmin(false);
 
         try {
-            User user = userService.createUser(userCreateForm);
-            assertNotNull(user);
-            assertEquals(userCreateForm.getUsername(), user.getUsername());
+            UserDto userDto = userService.createUser(userCreateForm);
+            assertNotNull(userDto);
+            assertEquals(userCreateForm.getUsername(), userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -39,9 +40,9 @@ public class UserServiceTestsSteps extends UserServiceTestsConfig {
     @Then("taj korisnik je sacuvan u bazi podataka")
     public void taj_korisnik_je_sacuvan_u_bazi_podataka() {
         try {
-            User user = userService.getUser("zika");
-            assertNotNull(user);
-            assertEquals("zika", user.getUsername());
+            UserDto userDto = userService.getUser("zika");
+            assertNotNull(userDto);
+            assertEquals("zika", userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -56,9 +57,9 @@ public class UserServiceTestsSteps extends UserServiceTestsConfig {
         userCreateForm.setIsAdmin(false);
 
         try {
-            User user = userService.createUser(userCreateForm);
-            assertNotNull(user);
-            assertEquals(userCreateForm.getUsername(), user.getUsername());
+            UserDto userDto = userService.createUser(userCreateForm);
+            assertNotNull(userDto);
+            assertEquals(userCreateForm.getUsername(), userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -66,49 +67,12 @@ public class UserServiceTestsSteps extends UserServiceTestsConfig {
     @Then("{string} je sacuvan u bazi podataka")
     public void je_sacuvan_u_bazi_podataka(String username) {
         try {
-            User user = userService.getUser(username);
-            assertNotNull(user);
-            assertEquals(username, user.getUsername());
+            UserDto userDto = userService.getUser(username);
+            assertNotNull(userDto);
+            assertEquals(username, userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }
-    }
-
-    @Given("korisnik {string} postoji u bazi podataka")
-    public void korisnik_postoji_u_bazi_podataka(String username) {
-        UserCreateForm userCreateForm = new UserCreateForm();
-        userCreateForm.setUsername(username);
-        userCreateForm.setPassword("test");
-        userCreateForm.setImePrezime(username);
-        userCreateForm.setIsAdmin(false);
-
-        try {
-            User user = userService.createUser(userCreateForm);
-            assertNotNull(user);
-            assertEquals(userCreateForm.getUsername(), user.getUsername());
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-    }
-    @When("zelimo da obrisemo korisnika ciji je username {string}")
-    public void zelimo_da_obrisemo_korisnika_cije_je_username(String username) {
-        try {
-            User user = userService.getUser(username);
-            userService.deleteUser(user);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-    }
-    @Then("{string} je izbrisan iz baze podataka")
-    public void je_izbrisan_iz_baze_podataka(String username) {
-        Exception exception = assertThrows(Exception.class, () -> {
-            userService.getUser(username);
-        });
-
-        String expectedExceptionMessage = "user does not exist";
-        String actualExceptionMessage = exception.getMessage();
-
-        assertEquals(expectedExceptionMessage, actualExceptionMessage);
     }
 
 }

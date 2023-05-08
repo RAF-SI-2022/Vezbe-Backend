@@ -43,6 +43,7 @@ presubmits:
               # docker compose up -d mysql-user
               # docker compose --profile user-service up -d
               docker compose up -d mysql-user
+              docker compose up -d redis
 
               branch=$PULL_HEAD_REF
               curr_branch=$(git rev-parse --abbrev-ref HEAD)
@@ -54,7 +55,7 @@ presubmits:
               git checkout $branch
 
               cd "$SERVICE_NAME"
-
+              
               mvn clean verify sonar:sonar -Pcoverage \
                 -Dsonar.host.url=https://sonar.k8s.elab.rs \
                 -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
