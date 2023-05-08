@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.LoginResponseForm;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
 import rs.edu.raf.si.user_service.model.User;
@@ -109,9 +110,9 @@ public class UserServiceIntegrationTest {
         userCreateForm.setIsAdmin(true);
 
         try {
-            User user = userService.createUser(userCreateForm);
-            assertNotNull(user);
-            assertEquals(userCreateForm.getUsername(), user.getUsername());
+            UserDto userDto = userService.createUser(userCreateForm);
+            assertNotNull(userDto);
+            assertEquals(userCreateForm.getUsername(), userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }

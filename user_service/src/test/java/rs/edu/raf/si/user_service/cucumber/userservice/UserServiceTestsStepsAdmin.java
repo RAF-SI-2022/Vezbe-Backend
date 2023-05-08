@@ -3,6 +3,7 @@ package rs.edu.raf.si.user_service.cucumber.userservice;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
 import rs.edu.raf.si.user_service.model.User;
 import rs.edu.raf.si.user_service.service.UserService;
@@ -23,9 +24,9 @@ public class UserServiceTestsStepsAdmin extends UserServiceTestsConfig {
         userCreateForm.setIsAdmin(true);
 
         try {
-            User user = userService.createUser(userCreateForm);
-            assertNotNull(user);
-            assertEquals(userCreateForm.getUsername(), user.getUsername());
+            UserDto userDto = userService.createUser(userCreateForm);
+            assertNotNull(userDto);
+            assertEquals(userCreateForm.getUsername(), userDto.getUsername());
         } catch (Exception e) {
             fail(e.getMessage());
         }
