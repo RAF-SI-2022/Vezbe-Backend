@@ -1,16 +1,14 @@
 package rs.edu.raf.si.user_service.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.UserCreateForm;
-import rs.edu.raf.si.user_service.model.User;
 import rs.edu.raf.si.user_service.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,11 +23,37 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> createUser(@RequestBody UserCreateForm userCreateForm) {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> listUsers() {
         try {
-            User user = userService.createUser(userCreateForm);
-            return ResponseEntity.ok().body(user);
+            return ResponseEntity.ok(userService.listUsers());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping(value = "/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> getUser(@PathVariable String username) {
+        try {
+            return ResponseEntity.ok(userService.getUser(username));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateForm userCreateForm) {
+        try {
+            return ResponseEntity.ok().body(userService.createUser(userCreateForm));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> editUser(@RequestBody UserCreateForm userCreateForm) {
+        try {
+            return ResponseEntity.ok().body(userService.editUser(userCreateForm));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.model.User;
 
 import java.util.Date;
@@ -27,7 +28,7 @@ public class JwtUtil {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
-    public String generateToken(User user){
+    public String generateToken(UserDto user){
         Map<String, Object> claims = new HashMap<>();
         if(user.getIsAdmin()) {
             claims.put("roles", "admin");

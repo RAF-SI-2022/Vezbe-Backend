@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import rs.edu.raf.si.user_service.dto.UserDto;
 import rs.edu.raf.si.user_service.form.LoginRequestForm;
 import rs.edu.raf.si.user_service.form.LoginResponseForm;
 import rs.edu.raf.si.user_service.model.User;
@@ -38,8 +39,8 @@ public class AuthController {
         }
 
         // Uzimam User-a iz baze kako bih mogao da ubacim role u JWT token
-        User user = userService.getUser(loginRequestForm.getUsername());
-        return ResponseEntity.ok(new LoginResponseForm(jwtUtil.generateToken(user)));
+        UserDto userDto = userService.getUser(loginRequestForm.getUsername());
+        return ResponseEntity.ok(new LoginResponseForm(jwtUtil.generateToken(userDto)));
     }
 
 }

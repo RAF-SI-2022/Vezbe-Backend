@@ -2,6 +2,15 @@ version: '3.3'
  
 services:
 
+  # Vezbe 8: Redis kontejner.
+  redis:
+    image: redis:7.0.11-alpine
+    ports:
+      - "6379:6379"
+    profiles:
+      - user-service
+      - all
+
   mysql-user:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
