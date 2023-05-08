@@ -12,4 +12,5 @@ import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
 @SelectClasspathResource("features/usercontroller")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "rs.edu.raf.si.user_service.cucumber.usercontroller")
 public class UserControllerTests {
+    
 }
