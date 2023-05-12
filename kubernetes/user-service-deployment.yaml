@@ -1,0 +1,104 @@
+# Kostur Deploymenta napravljen sa:
+# kubectl create deployment user-service --image harbor.k8s.elab.rs/vezbe/user-service:latest --namespace vezbe -o yaml --dry-run=client
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Promeniti name i vrednost app labela po potrebi.
+  # Preporuceno je da to bude naziv mikroservisa koji zelite da deployujete.
+  # Takodje promeniti i nazive ostalih resursa, poput Service-a, baze podataka i sl.
+  labels:
+    app: user-service
+  name: user-service
+  # Promeniti namespace tako da koristite jedan u vasih namespace-ova.
+  namespace: vezbe
+spec:
+  # Broj Podova, tj. replika, koji treba pokrenuti.
+  # Za pocetak vam je dovoljna jedna replika.
+  replicas: 1
+  selector:
+    # Labele definisane ovde moraju da budu definisane i u .template.metadata.labels.
+    # Kubernetes koristi ove labele kako bi pronasao Podove koji pripadaju ovom Deploymentu.
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        # Image vaseg mikroservisa sa Harbor-a
+        - image: harbor.k8s.elab.rs/vezbe/user-service:latest
+          # imagePullPolicy: Always je obavezno da stavite u vase kontejnere zato sto
+          # uglavnom uvek pushujute latest tag. Ova opcija ce osigurati da se povuce
+          # najnovija verzija image kada se Pod restartujete, tj. kada ga obrisete sa
+          # "kubectl delete".
+          imagePullPolicy: Always
+          name: user-service
+          env:
+            # Obratiti paznju na "?createDatabaseIfNotExist=true", ova opcija omogucava da
+            # Hibernate automatski napravi bazu podataka na MySQL klasteru za vas.
+            # "user-service-mysql" je naziv Service objekta koji exposuje vasu MySQL instancu
+            # (tj. MySQL ruter). Ovo se takodje podudara sa nazivom InnoDBCluster resursa
+            # definisanog u "user-service-mysql.yaml" fajlu.
+            - name: spring.datasource.url
+              value: jdbc:mysql://user-service-mysql:3306/user?createDatabaseIfNotExist=true
+            # Username za pristup MySQL-u citamo iz "user-service-mysql-creds" Secret-a koji
+            # smo definisali u "user-service-mysql.yaml" fajlu.
+            # Ovo je promenjeno u odnosu na vezbe 9 gde smo stavili value u plain-textu.
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: user-service-mysql-creds
+                  key: rootUser
+            # Password za pristup MySQL-u citamo iz "user-service-mysql-creds" Secret-a koji
+            # smo definisali u "user-service-mysql.yaml" fajlu.
+            # Ovo je promenjeno u odnosu na vezbe 9 gde smo stavili value u plain-textu.
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: user-service-mysql-creds
+                  key: rootPassword
+            # Vrednost "redis" mora da se poklapa sa nazivom servisa koji smo definisali
+            # u "redis.yaml" fajlu.
+            - name: spring.data.redis.host
+              value: redis
+            # Obrati posebnu paznju na ovu opciju. Zelimo da budemo sigurni da Hibernete
+            # nece obrisati celu bazu podataka kada se Pod ugasi, vec da ce samo po potrebi
+            # da azurira schemu baze podataka. Takodje obratiti paznju ako imate neki bootstrap
+            # u mikroservisu da se podaci ne upisuju ako su vec upisani
+            - name: spring.jpa.hibernate.ddl-auto
+              value: update
+          # Opcioni (kozmeticki): sluzi da opise koji portove Pod podrzava,
+          # ali nema nikakv uticaj na bilo sta
+          ports:
+            - containerPort: 8080
+---
+# Service sluzi da exposuje vas mikroservis kako bi drugi mikroservisi mogli
+# da mu pristupe. Servisi su detaljno obradjeni na vezbama 8.
+# Ukratko, Service sluzi da "grupise" sve Podove vezane za taj mikroservis i
+# da balansira saobracaj (load balancing) izmedju tih Podova.
+# Ovo je primer ClusterIP servisa kome se moze pristupiti samo unutar klastera,
+# npr. iz drugih Podova. Sledeci cas cemo raditi i druge tipove servisa, kao
+# i Ingress resurs.
+#
+# Servis napravljen sa:
+# kubectl expose --name user-service --port 8080 --type=ClusterIP --namespace vezbe deployment/user-service -o yaml --dry-run=client
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: user-service
+  name: user-service
+  namespace: vezbe
+spec:
+  # Portove promeniti po potrebi u zavisnosti koje portove koristi vas mikroservis.
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  # Selector je skup labela po kojima ce Kubernetes da nadje Podove koji treba
+  # da budu obuhvaceni ovim servisom. Ove labele treba da budu iste kao labele
+  # definisane u Deploymentu (.spec.template.metadata.labels).
+  selector:
+    app: user-service
+  type: ClusterIP
