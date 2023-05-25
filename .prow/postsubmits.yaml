@@ -26,11 +26,11 @@ postsubmits:
               # Trenutni branch i commit hash
               commit_hash=$(git rev-parse HEAD)
 
-              docker build -t harbor.k8s.elab.rs/vezbe/user-service:$hash ./user_service
+              docker build -t harbor.k8s.elab.rs/vezbe/user-service:$commit_hash ./user_service
               docker build -t harbor.k8s.elab.rs/vezbe/user-service:latest ./user_service
 
               docker push harbor.k8s.elab.rs/vezbe/user-service:latest
-              docker push harbor.k8s.elab.rs/vezbe/user-service:$hash
+              docker push harbor.k8s.elab.rs/vezbe/user-service:$commit_hash
 
               sed --in-place "s;__COMMIT_HASH__;$commit_hash;g" kubernetes/
 
