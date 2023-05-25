@@ -5,7 +5,12 @@ postsubmits:
       preset-harbor-robot-push: "true"
     always_run: true
     decorate: true
+    branches:
+      - ^main$
+      # Matchuje grane i tagove (release-ove) koji su tipa v0.0.0
+      # - ^v\d+\.\d+\.\d+.*
     spec:
+      serviceAccountName: prow-admin
       containers:
         - image: harbor.k8s.elab.rs/base-images/base:java-19-node-18-docker
           command:
@@ -15,6 +20,8 @@ postsubmits:
               set -euo pipefail
 
               start-docker.sh
+
+              sleep 3600
 
               docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD harbor.k8s.elab.rs
 
