@@ -32,7 +32,8 @@ postsubmits:
               docker push harbor.k8s.elab.rs/vezbe/user-service:latest
               docker push harbor.k8s.elab.rs/vezbe/user-service:$commit_hash
 
-              sed --in-place "s;__COMMIT_HASH__;$commit_hash;g" kubernetes/
+              # sed --in-place "s;__COMMIT_HASH__;$commit_hash;g" kubernetes/
+              find . -type f -exec sed -i.bak "s;__COMMIT_HASH__;$commit_hash;g" {} \;
 
               kubectl apply -f kubernetes/
           securityContext:
