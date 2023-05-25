@@ -7,7 +7,7 @@ metadata:
   labels:
     app: redis
   name: redis
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   replicas: 1
   selector:
@@ -28,7 +28,7 @@ metadata:
   labels:
     app: redis
   name: redis
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   ports:
     - port: 6379

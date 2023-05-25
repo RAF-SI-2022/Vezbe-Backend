@@ -10,7 +10,7 @@ metadata:
     app: user-service
   name: user-service
   # Promeniti namespace tako da koristite jedan u vasih namespace-ova.
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   # Broj Podova, tj. replika, koji treba pokrenuti.
   # Za pocetak vam je dovoljna jedna replika.
@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         # Image vaseg mikroservisa sa Harbor-a
-        - image: harbor.k8s.elab.rs/vezbe/user-service:latest
+        - image: harbor.k8s.elab.rs/vezbe/user-service:__COMMIT_HASH__
           # imagePullPolicy: Always je obavezno da stavite u vase kontejnere zato sto
           # uglavnom uvek pushujute latest tag. Ova opcija ce osigurati da se povuce
           # najnovija verzija image kada se Pod restartujete, tj. kada ga obrisete sa
@@ -89,7 +89,7 @@ metadata:
   labels:
     app: user-service
   name: user-service
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   # Portove promeniti po potrebi u zavisnosti koje portove koristi vas mikroservis.
   ports:

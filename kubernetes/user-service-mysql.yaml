@@ -14,7 +14,7 @@ kind: Secret
 metadata:
   # Naziv Secreta i .spec.secretName polje u InnoDBCluster objektu moraju da se poklapaju
   name: user-service-mysql-creds
-  namespace: vezbe
+  namespace: __NAMESPACE__
 ---
 # Objekat, tj. resurs, koji definise jedan MySQL klaster koji sadrzi 3 instance
 # (1 primary replika i 2 follower replike) i jedan ruter koji preusmerava saobracaj ka
@@ -26,7 +26,7 @@ apiVersion: mysql.oracle.com/v2
 kind: InnoDBCluster
 metadata:
   name: user-service-mysql
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   # Naziv Secreta i .spec.secretName polje u InnoDBCluster objektu moraju da se poklapaju
   secretName: user-service-mysql-creds
