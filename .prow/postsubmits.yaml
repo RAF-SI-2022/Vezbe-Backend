@@ -23,14 +23,16 @@ postsubmits:
 
               docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD harbor.k8s.elab.rs
 
-              # Trenutni branch
-              branch=$(git rev-parse --abbrev-ref HEAD)
+              # Trenutni branch i commit hash
+              commit_hash=$(git rev-parse HEAD)
 
-              docker build -t harbor.k8s.elab.rs/vezbe/user-service:$branch ./user_service
+              docker build -t harbor.k8s.elab.rs/vezbe/user-service:$hash ./user_service
               docker build -t harbor.k8s.elab.rs/vezbe/user-service:latest ./user_service
 
               docker push harbor.k8s.elab.rs/vezbe/user-service:latest
-              docker push harbor.k8s.elab.rs/vezbe/user-service:$branch
+              docker push harbor.k8s.elab.rs/vezbe/user-service:$hash
+
+              sed --in-place "s;__COMMIT_HASH__;$commit_hash;g" kubernetes/
 
               kubectl apply -f kubernetes/
           securityContext:
