@@ -21,8 +21,6 @@ postsubmits:
 
               start-docker.sh
 
-              sleep 3600
-
               docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD harbor.k8s.elab.rs
 
               # Trenutni branch
@@ -33,6 +31,8 @@ postsubmits:
 
               docker push harbor.k8s.elab.rs/vezbe/user-service:latest
               docker push harbor.k8s.elab.rs/vezbe/user-service:$branch
+
+              kubectl apply -f kubernetes/
           securityContext:
             privileged: true
           imagePullPolicy: Always
