@@ -1,0 +1,18 @@
+# Vezbe 13: ServiceMonitor za user service
+# ServiceMonitor konfigurise Prometheus da scrapuje metrike za servis
+# poput prometheus.yml fajla u Docker Composeu
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-service
+  namespace: __NAMESPACE__
+  labels:
+    prometheus: __NAMESPACE__
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  endpoints:
+    - port: http
+      honorLabels: true
+      path: "/actuator/prometheus"

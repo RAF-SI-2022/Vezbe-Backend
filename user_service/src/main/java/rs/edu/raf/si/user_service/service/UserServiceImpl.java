@@ -1,5 +1,7 @@
 package rs.edu.raf.si.user_service.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -14,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 // Vezbe 8: Kesiranje i Redis integracija
@@ -34,9 +38,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    // Vezbe 13: Primer countera i gauge
+    private Counter listUsers = null;
+    private AtomicInteger randomInt;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, CompositeMeterRegistry meterRegistry) {
         this.userRepository = userRepository;
+        // Vezbe 13: Registracija countera i gaugea
+        this.listUsers = meterRegistry.counter("users.lists");
+        this.randomInt = meterRegistry.gauge("users.gauge", new AtomicInteger(0));
     }
 
     // Vezbe 8
@@ -61,8 +72,12 @@ public class UserServiceImpl implements UserService {
     // (u tom slucaju se nakon invalidiranja pri sledecem pozivu metode ona ponovo izvrsava).
     // Primetiti da ovde nemamo "key" parametar u Cacheable anotaciji posto kesiramo listu.
     @Override
-    @Cacheable(value = "users")
+//    @Cacheable(value = "users")
     public List<UserDto> listUsers() {
+        // Vezbe 13: Upotreba countera i gaugea
+        listUsers.increment();
+        randomInt.set(ThreadLocalRandom.current().nextInt());
+
         return userRepository.findAll().stream().map(this::convertUserToDto).collect(Collectors.toList());
     }
 

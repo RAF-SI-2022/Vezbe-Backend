@@ -96,6 +96,8 @@ spec:
     - port: 8080
       protocol: TCP
       targetPort: 8080
+      # Vezbe 13: Prometheus (dodeliti naziv porta)
+      name: http
   # Selector je skup labela po kojima ce Kubernetes da nadje Podove koji treba
   # da budu obuhvaceni ovim servisom. Ove labele treba da budu iste kao labele
   # definisane u Deploymentu (.spec.template.metadata.labels).

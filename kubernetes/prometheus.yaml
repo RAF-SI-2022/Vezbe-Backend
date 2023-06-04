@@ -1,0 +1,84 @@
+# Vezbe 13: Prometheus deployment
+# Potrebno je da imate Prometheus deployment po okruzenju (prod i canary)
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: __NAMESPACE__
+  namespace: __NAMESPACE__
+spec:
+  replicas: 1
+  retention: 7d
+  scrapeInterval: 15s
+  version: v2.42.0
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      prometheus: __NAMESPACE__
+  serviceMonitorNamespaceSelector: {}
+  podMonitorSelector:
+    matchLabels:
+      prometheus: __NAMESPACE__
+  podMonitorNamespaceSelector: {}
+  resources:
+    requests:
+      cpu: 2
+      memory: 16Gi
+    limits:
+      cpu: 2
+      memory: 16Gi
+  logLevel: info
+  logFormat: logfmt
+  securityContext:
+    fsGroup: 0
+    runAsNonRoot: false
+    runAsUser: 0
+  storage:
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: 100Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: __NAMESPACE__
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/metrics
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["get"]
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: __NAMESPACE__

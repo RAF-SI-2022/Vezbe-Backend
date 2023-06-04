@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import rs.edu.raf.si.user_service.model.User;
 import rs.edu.raf.si.user_service.repository.UserRepository;
 
+import java.util.Optional;
+
 @Component
 public class BootstrapData implements CommandLineRunner {
 
@@ -24,14 +26,17 @@ public class BootstrapData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Loading Data...");
 
-        User user = new User();
-        user.setUsername("admin");
-        user.setPassword(this.passwordEncoder.encode("admin"));
-        user.setImePrezime("RAF Admin");
-        user.setIsAdmin(true);
+        Optional<User> findUser = userRepository.findUserByUsername("admin");
+        if(findUser.isEmpty()) {
+            User user = new User();
+            user.setUsername("admin");
+            user.setPassword(this.passwordEncoder.encode("admin"));
+            user.setImePrezime("RAF Admin");
+            user.setIsAdmin(true);
 
-        this.userRepository.save(user);
+            this.userRepository.save(user);
 
-        System.out.println("Data loaded!");
+            System.out.println("Data loaded!");
+        }
     }
 }

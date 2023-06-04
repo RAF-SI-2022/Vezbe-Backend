@@ -2,6 +2,33 @@ version: '3.3'
  
 services:
 
+  # Vezbe 13: Prometheus kontejner
+  # Pokrece se bez volume-a, tako da se metrike ne cuvaju nakon gasenja kontejnera
+  # prometheus.yml fajl sluzi za konfiguraciju servisa sa kojih se scrapeuju metrike
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.44.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    profiles:
+      - user-service
+      - all
+
+  # Vezbe 13: Grafana kontejner
+  # Grafana sluzi za vizualizaciju metrika
+  # Default username/password je admin
+  grafana:
+    image: docker.io/grafana/grafana-oss:9.5.2
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    user: 'root'
+    profiles:
+      - user-service
+      - all
+
   # Vezbe 8: Redis kontejner.
   redis:
     image: redis:7.0.11-alpine
@@ -114,3 +141,4 @@ services:
 volumes:
   mysql-user:
   mysql-biblioteka:
+  grafana:
