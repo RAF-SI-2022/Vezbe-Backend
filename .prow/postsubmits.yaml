@@ -1,17 +1,47 @@
+# Vezbe 11
+# CD job za buildovanje image-a i deployment na Kubernetes.
+# Obratiti paznju na komentare "PROMENITI PRI KOPIRANJU"
 postsubmits:
+  # PROMENITI PRI KOPIRANJU
+  # Name treba da bude u formatu "post-<repozitorijum>-deploy", npr.
+  # post-banka-1-backend-deploy
   - name: post-vezbe-backend-deploy
     labels:
-      preset-github-ro-token: "true"
       preset-harbor-robot-push: "true"
-    always_run: true
     decorate: true
-    branches:
-      - ^main$
-      # Matchuje grane i tagove (release-ove) koji su tipa v0.0.0
-      # - ^v\d+\.\d+\.\d+.*
+    # PROMENITI PRI KOPIRANJU
+    # Treba da se odlucite kada se ovaj job pokrece.
+    # Postsubmit jobovi su pokrecu:
+    #   - kada se pushuje na neku granu (npr. merguje se pull request).
+    #   - kada se napravi novi tag/release
+    # Moguce je ograniciti postsubmit job da se pokrece samo za neke grane ili
+    # samo za release-ove.
+    # Ipak, preporuka je da job pokrecete na svaki push na bilo kojoj grani,
+    # a preko skripte unutar job-a da kontrolisete sta se desava u odnosu na granu ili release.
+    # "always_run" se koristi u slucaju kada hocete job da pokrenete za bilo koji push:
+    always_run: true
+    # "branches" se koristi kada hocete da ogranicite za koje grane se pokrece job:
+    # branches:
+    #   - ^main$
+    #   # Matchuje grane i tagove (release-ove) koji su tipa v0.0.0
+    #   # - ^v\d+\.\d+\.\d+.*
+    # Ukoliko zelite Kubernetes manifeste da cuvate u infrastructure repozitorijumu,
+    # potrebno je prilikom pokretanja ovog job-a da klonirate i infrastructure repozitorijum.
+    # To se radi tako sto odkomentarisete "extra_refs" deo i izmenite ga po potrebi
+    # (promenite repozitorijum i eventualno granu tj. "base_ref").
+    # Putanja unutar job-a gde bi se repozitorijum nalazio je "/home/prow/go/src/infra".
+    # Ako koristite ovaj pristup, potrebno je da na kraju skripte promenite "kubectl apply"
+    # komandu da koristi taj direktorijum.
+    # extra_refs:
+    #   - org: RAF-SI-2022
+    #     repo: Bolnica-2-Infrastructure
+    #     base_ref: main
+    #     path_alias: "infra"
     spec:
       serviceAccountName: prow-admin
       containers:
+        # PROMENITI PRI KOPIRANJU
+        # Ovaj image treba da bude isti kao image u ostalim CI jobovima
         - image: harbor.k8s.elab.rs/base-images/base:java-19-node-18-docker
           command:
             - /bin/bash
@@ -19,22 +49,86 @@ postsubmits:
             - |
               set -euo pipefail
 
+              ############################
+              # Push Docker image-a      #
+              ############################
+
+              # Pokretanje Docker-a unutar test containera.
+              # Potrebno kako bi mogli da buildujemo i pushujemo image.
               start-docker.sh
 
+              # Logovanje na Harbor.
+              # Kredencijali su mountovani u kontejner preko preset-a.
               docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD harbor.k8s.elab.rs
 
-              # Trenutni branch i commit hash
+              # Ova varijabla sadrzi commit hash za koji se job pokrenuo.
               commit_hash=$(git rev-parse HEAD)
+              
+              # Ova varijabla sadrzi naziv taga/releasea ukoliko se job pokrenuo za novi release.
+              # U slucaju da se job pokrene za obican commit, ova varijabla je prazna.
+              tag_name=$(git tag --points-at HEAD)
 
-              docker build -t harbor.k8s.elab.rs/vezbe/user-service:$commit_hash ./user_service
-              docker build -t harbor.k8s.elab.rs/vezbe/user-service:latest ./user_service
+              # Lista/niz Docker tagova koje pushujemo.
+              # Pushujemo sledece tagove:
+              # - latest
+              # - commit hash
+              # - tag/release (u slucaju da se job pokrene za novi release)
+              image_tags="latest"
+              image_tags+=" ${commit_hash}"
+              image_tags+=" ${tag_name}"
+              
+              # Odbacujemo prazna mesta na kraju stringa
+              image_tags=$(echo $image_tags | xargs)
 
-              docker push harbor.k8s.elab.rs/vezbe/user-service:latest
-              docker push harbor.k8s.elab.rs/vezbe/user-service:$commit_hash
+              # PROMENITI PRI KOPIRANJU
+              # Ovde treba da dodate "docker build" za svaki mikroservis, tj.
+              # za svaki Docker image koji buildujete.
+              #
+              # Image se builduje samo jednom sa nekim nasumnicnim tagom (npr.
+              # "builder" u ovom slucaju), a onda taj isti image pushujemo
+              # pod drugim nazivom koliko god puta treba.
+              docker build -t harbor.k8s.elab.rs/vezbe/user-service:builder ./user_service
 
-              # sed --in-place "s;__COMMIT_HASH__;$commit_hash;g" kubernetes/
+              for tag in $image_tags
+              do
+                # PROMENITI PRI KOPIRANJU
+                # Ovde treba da imate "docker tag" i "docker push" za svaki Docker image koji ste
+                # buildovali iznad.
+                docker tag harbor.k8s.elab.rs/vezbe/user-service:builder harbor.k8s.elab.rs/vezbe/user-service:$tag
+                docker push harbor.k8s.elab.rs/vezbe/user-service:$tag
+              done
+              
+              ############################
+              # Deployment na Kubernetes #
+              ############################
+              
+              # PROMENITI PRI KOPIRANJU
+              # Promeniti sa nazivom dev namespace-a koji vas tim koristi.
+              # Ova varijabla sadrzi default namespace u koji deployujemo mikroservise.
+              namespace="vezbe"
+              # Sledeci "if" statement ima sledece znacenje:
+              # u slucaju da je varijabla tag_name setovana i nije prazna,
+              # stavi namespace na "vezbe-prod".
+              # Drugim recima, ukoliko se job pokrenuo za novi release,
+              # mikrosevise deployuj u production namespace.
+              if [[ -n "${tag_name}" ]]; then
+                # PROMENITI PRI KOPIRANJU
+                # Promeniti sa nazivom prod namespace-a koji vas tim koristi.
+                namespace="vezbe-prod"
+              fi
+              
+              # PROMENITI PRI KOPIRANJU
+              # Potrebno je da svaki YAML manifest koji imate promenite tako da:
+              #   - image koristi __COMMIT_HASH__ kao tag (umesto npr. latest)
+              #   - namespace bude __NAMESPACE__
+              # Na snimku je detaljno objasnjeno zasto se ovo radi, pa preporucujem
+              # da pogledate taj snimak.
               find . -type f -exec sed -i.bak "s;__COMMIT_HASH__;$commit_hash;g" {} \;
+              find . -type f -exec sed -i.bak "s;__NAMESPACE__;$namespace;g" {} \;
 
+              # PROMENITI PRI KOPIRANJU
+              # Po potrebi promenite naziv direktorijuma.
+              # Primena svih YAML manifest iz "kubernetes" foldera u klaster.
               kubectl apply -f kubernetes/
           securityContext:
             privileged: true

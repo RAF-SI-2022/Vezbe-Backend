@@ -10,7 +10,7 @@ metadata:
     app: user-service
   name: user-service
   # Promeniti namespace tako da koristite jedan u vasih namespace-ova.
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   # Broj Podova, tj. replika, koji treba pokrenuti.
   # Za pocetak vam je dovoljna jedna replika.
@@ -89,7 +89,7 @@ metadata:
   labels:
     app: user-service
   name: user-service
-  namespace: vezbe
+  namespace: __NAMESPACE__
 spec:
   # Portove promeniti po potrebi u zavisnosti koje portove koristi vas mikroservis.
   ports:
