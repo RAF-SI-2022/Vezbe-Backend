@@ -1,6 +1,7 @@
 # Deployment i Service za Redis.
 # Dovoljan je jedan Redis za sve mikroservise, nema potrebe da pravite vise Redis instanci.
 # Generalno nema potrebe da menjate bilo sta u ovom manifestu, mozete da ga koriste kako jeste.
+# __NAMESPACE__ zameniti sa vasem namespace-om.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

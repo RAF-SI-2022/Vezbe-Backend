@@ -1,5 +1,6 @@
 # Vezbe 13: Prometheus deployment
 # Potrebno je da imate Prometheus deployment po okruzenju (prod i canary)
+# __NAMESPACE__ zameniti sa vasem namespace-om.
 apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:

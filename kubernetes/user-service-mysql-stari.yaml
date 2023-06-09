@@ -1,3 +1,13 @@
+#############################################################
+# NE PREPORUCUJE SE UPOTREBA OVOG MANIFESTA ZA MYSQL !!!    #
+# Oracle MySQL ima dosta problema i cesto dolazi do toga da #
+# MySQL klaster padne ili nece da radi kako treba.          #
+# PREPORUCUJE SE MIGRACIJA NA MARIADB, POGLEDATI PRVI CAS   #
+# U TERMINU VEZBI 13 ZA VISE INFORMACIJA !!!                #
+# Manifest za MariaDB se nalazi u fajlu:                    #
+# "user-service-mariadb.yaml"                               #
+#############################################################
+
 # Secret napravljen sa:
 # kubectl create secret generic user-service-mysql-creds --namespace vezbe --from-literal=rootUser=root --from-literal=rootHost=% --from-literal=rootPassword=raf-si -o yaml --dry-run=client
 # Po potrebi mozete iskoristiti ovu komandu da generisete Secret sa drugacijim passwordom.

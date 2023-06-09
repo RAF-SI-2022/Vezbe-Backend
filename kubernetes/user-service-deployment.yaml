@@ -1,5 +1,6 @@
 # Kostur Deploymenta napravljen sa:
 # kubectl create deployment user-service --image harbor.k8s.elab.rs/vezbe/user-service:latest --namespace vezbe -o yaml --dry-run=client
+# __NAMESPACE__ zameniti sa vasem namespace-om.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
