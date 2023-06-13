@@ -107,6 +107,7 @@ postsubmits:
               # docker compose up -d mysql-user
               # docker compose --profile user-service up -d
               docker compose up -d mysql-user
+              docker compose up -d redis
 
               cd "$SERVICE_NAME"
               
